@@ -1,30 +1,44 @@
 #!/bin/sh
 
-# Compile the verilog
-mkdir -p build
+# Colors
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-iverilog -o build/testbench *.v || { printf "${RED}Failed to compile, check errors${NC}\n"; exit 0; }
+mkdir -p build
 
-# Run the simulation
-cd build
-./testbench || { printf "${RED}Failed to run simulation, check errors${NC}\n"; exit 0; }
+# Compile
+iverilog -o build/testbench *.v || {
+    printf "${RED}Failed to compile, check errors${NC}\n"
+    exit 1
+}
 
-# Check if GTK wave is already running
-WID=$(cat gtkwave)
-if osascript -e "tell application \"System Events\" to (name of processes) contains \"GTKWave\""; then
-    # Wait for the existing process to close
-    pkill -f "GTKWave"
-    while ps -p $(cat gtkwave.pid) > /dev/null; do
-        true
-    done
+cd build || exit 1
+
+# Run
+./testbench || {
+    printf "${RED}Simulation failed${NC}\n"
+    exit 1
+}
+
+# Ensure VCD exists
+if [ ! -f dump.vcd ]; then
+    printf "${RED}dump.vcd not generated${NC}\n"
+    exit 1
 fi
 
-# Load the VCD file in GTK wave and launch it
-nohup gtkwave -M dump.vcd .dump.gtkw -a .dump.gtkw --dark --rcvar 'splash_disable on' --saveonexit 2>&1 &
+# Kill existing GTKWave safely
+if pgrep -x "GTKWave" >/dev/null 2>&1; then
+    pkill -x "GTKWave"
+    if [ -f gtkwave.pid ]; then
+        while ps -p "$(cat gtkwave.pid)" >/dev/null 2>&1; do
+            sleep 0.1
+        done
+    fi
+fi
+
+# Launch GTKWave
+nohup gtkwave dump.vcd .dump.gtkw --dark \
+    --rcvar 'splash_disable on' --saveonexit >/dev/null 2>&1 &
 GTKWAVE=$!
 
-# Dump IDs to lockfiles so we know to restart next time
-echo $WID > gtkwave
-echo $GTKWAVE > gtkwave.pid
+echo "$GTKWAVE" > gtkwave.pid

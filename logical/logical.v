@@ -1,3 +1,4 @@
+// produce a 1-bit logical AND (boolean)
 module logical (
     input[1:0] a,
     input[1:0] b,
