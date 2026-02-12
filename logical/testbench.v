@@ -1,33 +1,32 @@
 /*
-    In this demo, we demonstrate the difference between logical (&&) and bitwise (&)
+    Demo: demonstrate the difference between logical (&&) and bitwise (&), then view waveforms
     Note: in the degenerate one-bit case they will have the same output, but otherwise that is not always true
     Note 2: for some reason, an instance cannot be named 'logic' could be an error related to iverilog compiler
-    Note 3: 'and' is not valid syntax in verilog, despite chatGPT saying so
+
 */
 
 module testbench();
     // create these as regs since we are not driving them
+    // the output is a wire because ...
     reg[1:0] a;
     reg[1:0] b;
     wire[1:0] bt_out;
     wire lg_out;
-    // todo: review assumed data range and formats for numbers
-    // todo: what happens if we try this on negative numbers
 
+    // example of a module instantiation
     bitwise my_bitwise_inst(
-    .a(a),
-    .b(b),
-    .bitwise_o(bt_out) // how exactly does this get marked as an output? what is bt_out doing?
+        .a(a),
+        .b(b),
+        .bitwise_o(bt_out)
     );
 
-    // again, figure out what the arg .() stuff actually means here...
     logical my_logical_inst(
-    .a(a),
-    .b(b),
-    .logical_o(lg_out)
+        .a(a),
+        .b(b),
+        .logical_o(lg_out)
     );
 
-	// todo: how to set the time scale
+	
     initial begin
         $dumpvars;
         a = 2'b00;
