@@ -1,0 +1,2 @@
+SV Classes / AOP / VMM / OVM: don’t target these for Verilator. If your real goal is “vibe coding SV that simulates in Verilator,” put that energy into: interfaces, clean always_ff/always_comb structure, assertions, and C++ testbench patterns.
+Random Constraints / Functional Coverage / Program Block / Clocking: in Verilator, treat these as C++ testbench responsibilities. You can still learn the idea of clocking blocks/program blocks, but implement scheduling in C++ (your tick() is effectively your clocking discipline).
