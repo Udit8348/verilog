@@ -6,14 +6,13 @@
 //  - packed vectors vs unpacked arrays
 //  - enums, structs, signed arithmetic
 //
-// Verilator note:
-//  - This is all supported and synthesizable-ish; we still drive it from C++.
 
 module top (
     input  logic clk,
     input  logic rst_n,
 
-    // A few inputs from C++ so you can poke values and see how types behave.
+    // provide some inputs we can control from the simulation
+    // vectors are interpreted as unsigned by defualt
     input  logic [7:0] in_u8,
     input  logic signed [7:0] in_s8,
 
@@ -49,9 +48,7 @@ module top (
     bit   two_state_flag;
     logic four_state_flag;
 
-    // -------------------------
-    // Packed struct + enum
-    // -------------------------
+    // enum where each entry is a 4 bit value
     typedef enum logic [3:0] {
         ST_IDLE = 4'h0,
         ST_RUN  = 4'h1,
@@ -75,6 +72,7 @@ module top (
     // Unsigned sum: wraps mod 256 (because out_sum_u is 8 bits).
     // Signed sum: we widen to 9 bits to keep sign and show overflow behavior.
     always_ff @(posedge clk) begin
+        // active low: when rst_n is 0, we assert the reset logic
         if (!rst_n) begin
             state <= ST_IDLE;
             out_sum_u <= '0;
@@ -103,7 +101,7 @@ module top (
             pack_me.hi <= b;
 
             // show 2-state vs 4-state: if in_u8 contains X, logic can hold it (in a real sim)
-            // Verilator is 2-state by default for many signals, but logic is still the right habit.
+            // signals are two state by default (0/1) but its clear to call it a bit in code
             two_state_flag <= (in_u8[0] == 1'b1);
             four_state_flag <= (in_u8[0] === 1'b1); // 4-state compare
         end
