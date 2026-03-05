@@ -26,6 +26,8 @@ module top (
     // -------------------------
     // Function: pure combinational calculation
     // Must not contain timing (#) or wait or nonblocking.
+    // Functions are automatic by default in systemverilog.
+    // 
     // -------------------------
     function automatic logic [7:0] popcount8(input logic [7:0] v);
         logic [7:0] cnt;
@@ -35,6 +37,22 @@ module top (
         end
         return cnt;
     endfunction
+
+    /**
+        The for loop gets resolved into a compile-time unroll.
+        This is known as a ripple-style adder chain. That is 7 / 8 8-bit adders deep.
+
+            cnt = cnt + v[0]
+            cnt = cnt + v[1]
+            cnt = cnt + v[2]
+            cnt = cnt + v[3]
+            cnt = cnt + v[4]
+            cnt = cnt + v[5]
+            cnt = cnt + v[6]
+            cnt = cnt + v[7]
+
+        We can divide and conquer with a pairwise summation. Known as an adder tree (parallel reduction).
+    */
 
     // -------------------------
     // Task: can model multi-step procedures (still keep it combinational here)
