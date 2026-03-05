@@ -95,6 +95,8 @@ public:
 ```
 
 This is the earlier example rewritten with my wrapper:
+// NIT: this is not clear intent -> show long vs short hand....
+
 ```
 #include "Vtop.h"
 #include "lib/verilator_sim.h"
