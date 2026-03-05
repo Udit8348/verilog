@@ -1,3 +1,5 @@
 **/build/
 **/*.pid
 */*.vcd
+*.local
+slop/
